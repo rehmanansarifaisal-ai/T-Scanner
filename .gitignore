@@ -1,0 +1,17 @@
+backend/__pycache__/
+backend/dataset/
+backend/models/
+backend/outputs/
+backend/uploads/
+backend/.env
+__pycache__/
+*.pyc
+.DS_Store
+
+# Build and runtime outputs
+runs/
+
+# Large model weights
+*.pt
+
+backend/data/

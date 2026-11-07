@@ -1,0 +1,28 @@
+T-SCANNER — MRI SCAN ANIMATION FIX
+
+Root cause
+The previous stylesheet respected prefers-reduced-motion by forcing all CSS
+animations to 0.01ms and one iteration. That caused the CSS-driven search
+reticle to jump immediately to its final frame, which matched its starting
+position and looked stationary.
+
+Fix
+- Reticle movement is now driven by requestAnimationFrame in vanilla JS.
+- The box sweeps left/right across four horizontal bands of the MRI preview.
+- Scan state text updates as each band is searched.
+- Scan animation remains active for at least 5.6 seconds, enough to see a full sweep.
+- Scanner-specific rings, beam, scanline and pulse remain animated while a scan
+  is actively running, including on systems requesting reduced motion.
+- Static asset URLs have cache-busting query versions so old JS/CSS is less likely
+  to remain cached.
+
+Apply
+1. Close T-Scanner.
+2. Extract this ZIP into the T-Scanner project root.
+3. Overwrite the files in frontend/.
+4. Start using the same Python 3.10.8 setup: python main.py
+5. Reopen the application. If it was already open, close the old browser window
+   and open the T-Scanner URL printed by main.py again.
+
+No backend files, model weights, dataset folders, GLB files, API keys or user
+records are included or replaced by this patch.

@@ -1,0 +1,44 @@
+T-SCANNER MRI SCAN / DATASET / REPORT / BRAIN FILTER UPDATE
+
+Compatibility
+- Python 3.10.8 (or a later 3.10.x patch release)
+- Static HTML5, CSS3 and vanilla JavaScript frontend
+- Python FastAPI backend
+- No Node.js, npm, React, Vite, Electron, Three.js or frontend build step
+- No forced virtual environment
+
+Apply
+1. Close T-Scanner.
+2. Extract this ZIP into the root of your existing T-Scanner project.
+3. Allow the four files under frontend/ and backend/main.py to be overwritten.
+4. Keep your existing user data folders. Do NOT delete or replace backend/dataset/ or backend/3d/brain/.
+5. Start using your Python 3.10.8 installation: python main.py (or py -3.10 main.py).
+
+Dataset layout expected by the same-class reference gallery
+backend/dataset/
+  Train/
+    glioma/      (MRI image files)
+    meningioma/  (MRI image files)
+    pituitary/   (MRI image files)
+    notumor/     (MRI image files)
+  Test/
+    glioma/
+    meningioma/
+    pituitary/
+    notumor/
+
+Supported reference image extensions: JPG, JPEG, PNG, WEBP, BMP.
+The gallery randomly samples real images only from the folder matching the predicted class. They are same-class examples, not ranked visual-similarity matches and not diagnostic evidence.
+
+Brain model files expected (preserve the model already in your project)
+backend/3d/brain/source/brain.glb
+backend/3d/brain/textures/gltf_embedded_0.png
+backend/3d/brain/textures/gltf_embedded_1.png
+backend/3d/brain/textures/gltf_embedded_1@channels=A.png
+backend/3d/brain/textures/gltf_embedded_2.png
+
+MRI scan animation
+The full-image scanning reticle and sci-fi sweep are visual feedback while the Python model performs its actual inference. The animation itself does not detect tumours or alter the prediction.
+
+Report images
+The report creates one MRI image with all returned bounding boxes, then one separate raw MRI crop per returned detection. If the loaded model returns only one region, the report can only create one crop. The classification-only fallback may provide one heuristic estimated region; it is not a validated segmentation.

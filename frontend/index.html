@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070c16">
+  <meta name="description" content="T-Scanner immersive brain MRI exploration and AI research simulator.">
+  <title>T-Scanner | Neural Research Environment</title>
+  <link rel="stylesheet" href="/static/styles.css?v=20261106-scanfix2">
+</head>
+<body>
+  <div class="app-shell">
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="starfield" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <button class="brand-lockup" data-room="neural" aria-label="Return to Neural Laboratory">
+        <span class="brand-symbol"><span></span><span></span><span></span></span>
+        <span class="brand-copy"><strong>T-SCANNER</strong><small>NEURAL RESEARCH SYSTEM</small></span>
+      </button>
+      <div class="topbar-center"><span class="environment-pip"></span><span id="environmentName">NEURAL LABORATORY</span></div>
+      <div class="topbar-right">
+        <span class="status-indicator" id="backendStatus"><i></i><span>CONNECTING</span></span>
+        <button class="icon-button" id="helpButton" title="Controls and shortcuts" aria-label="Open controls help">?</button>
+      </div>
+    </header>
+
+    <main id="world" class="world">
+      <!-- Neural Laboratory -->
+      <section class="room active" id="room-neural" data-room-panel="neural" aria-label="Neural Laboratory">
+        <div class="scene-kicker"><span>01 / 05</span><b>NEURAL LABORATORY</b><span class="kicker-line"></span><span>ANATOMY SIMULATION</span></div>
+        <div class="brain-stage" id="brainStage">
+          <canvas id="brainCanvas" aria-label="Interactive 3D brain anatomy model"></canvas>
+          <div id="brainLoadStatus" class="brain-load-status" role="status" aria-live="polite">LOADING BRAIN ANATOMY MODEL…</div>
+          <div class="brain-glow"></div>
+          <div class="brain-orbit orbit-a"></div><div class="brain-orbit orbit-b"></div>
+          <div class="brain-label label-frontal" data-region="Frontal lobe"><i></i><span>FRONTAL LOBE</span></div>
+          <div class="brain-label label-temporal" data-region="Temporal lobe"><i></i><span>TEMPORAL LOBE</span></div>
+          <div class="brain-label label-cerebellum" data-region="Cerebellum"><i></i><span>CEREBELLUM</span></div>
+          <div class="brain-label label-stem" data-region="Brainstem"><i></i><span>BRAINSTEM</span></div>
+          <div class="brain-watermark">3D ANATOMICAL REFERENCE · NOT A PATIENT-SPECIFIC MRI RECONSTRUCTION</div>
+        </div>
+        <div class="neural-copy">
+          <div class="micro-label"><span class="live-pulse"></span> IMMERSIVE MEDICAL SIMULATION</div>
+          <h1>Explore the<br><em>human brain.</em></h1>
+          <p>Enter a neural research environment for MRI inspection, AI-assisted classification, anatomical exploration and case research.</p>
+          <button class="launch-button" data-room="scanner"><span class="launch-icon">↗</span><span>ENTER SCANNER CHAMBER</span><b>01</b></button>
+          <div class="intro-foot"><span>MOVE TO ORBIT · DRAG TO ROTATE · SCROLL TO ZOOM</span><span>GLB MODEL / WEBGL PBR</span></div>
+        </div>
+        <div class="neural-side-tools">
+          <button class="floating-tool" id="brainReset" title="Reset brain orientation"><span>↺</span><small>RESET VIEW</small></button>
+          <button class="floating-tool" id="brainExplode" title="Explode anatomical structures"><span>✣</span><small>EXPLODE</small></button>
+          <button class="floating-tool" id="brainSection" title="Toggle cross-section"><span>◐</span><small>SECTION</small></button>
+          <button class="floating-tool" id="brainFilters" title="Inspect the brain material maps"><span>◌</span><small>FILTERS</small></button>
+        </div>
+        <div class="brain-filter-panel hidden" id="brainFilterPanel">
+          <div class="filter-panel-heading"><span class="micro-label">MATERIAL INSPECTION</span><small>GLB TEXTURE MAPS</small></div>
+          <button class="brain-filter-option active" data-brain-filter="main"><span class="filter-swatch filter-main"></span><span><b>MAIN · ALL MAPS</b><small>Base colour + metallic + roughness + normals</small></span><i>01</i></button>
+          <button class="brain-filter-option" data-brain-filter="base"><span class="filter-swatch filter-base"></span><span><b>BASE COLOR</b><small>Albedo / surface colour texture</small></span><i>02</i></button>
+          <button class="brain-filter-option" data-brain-filter="metal"><span class="filter-swatch filter-metal"></span><span><b>METALLIC</b><small>Metalness channel</small></span><i>03</i></button>
+          <button class="brain-filter-option" data-brain-filter="rough"><span class="filter-swatch filter-rough"></span><span><b>ROUGHNESS</b><small>Surface micro-roughness map</small></span><i>04</i></button>
+          <button class="brain-filter-option" data-brain-filter="normal"><span class="filter-swatch filter-normal"></span><span><b>NORMAL</b><small>Surface detail / normal vectors</small></span><i>05</i></button>
+          <button class="filter-transparency" id="layerTransparency">TOGGLE TRANSPARENCY</button>
+        </div>
+        <div class="region-dock" aria-label="Brain anatomy regions">
+          <span>SELECT REGION</span>
+          <button data-region-select="Frontal lobe">FRONTAL</button>
+          <button data-region-select="Parietal lobe">PARIETAL</button>
+          <button data-region-select="Temporal lobe">TEMPORAL</button>
+          <button data-region-select="Occipital lobe">OCCIPITAL</button>
+          <button data-region-select="Cerebellum">CEREBELLUM</button>
+          <button data-region-select="Brainstem">BRAINSTEM</button>
+        </div>
+        <div class="anatomy-card hidden" id="anatomyCard">
+          <button class="close-mini" id="closeAnatomy" aria-label="Close anatomy information">×</button>
+          <span class="micro-label">ANATOMICAL REFERENCE</span><h3 id="anatomyTitle">Frontal lobe</h3><p id="anatomyDescription"></p>
+        </div>
+      </section>
+
+      <!-- MRI Scanner Chamber -->
+      <section class="room room-overlay" id="room-scanner" data-room-panel="scanner" aria-label="MRI Scanner Chamber" hidden>
+        <div class="room-heading"><div><div class="scene-kicker"><span>02 / 05</span><b>SCANNER CHAMBER</b></div><h2>Prepare a <em>scan session.</em></h2><p>Import a 2D MRI image or a group of image slices for individual analysis.</p></div><button class="close-room" data-room="neural" aria-label="Return to Neural Laboratory">×</button></div>
+        <div class="scanner-layout">
+          <div class="scanner-visual">
+            <div class="scanner-ring ring-outer"></div><div class="scanner-ring ring-middle"></div><div class="scanner-ring ring-inner"></div>
+            <div class="scanner-bed"></div><div class="scanner-core"><span>MR</span><i></i></div>
+            <div class="scan-preview-shell" id="scanPreviewShell" aria-live="polite">
+              <div class="scan-preview-top"><span>LIVE MRI FIELD SCAN</span><b id="scanPreviewState">REGION SEARCH ACTIVE</b></div>
+              <div class="scan-preview-frame">
+                <img id="scanPreviewImage" alt="MRI scan preview during AI analysis">
+                <div class="scan-preview-grid"></div>
+                <div class="scan-preview-line"></div>
+                <div class="scan-search-reticle" id="scanSearchReticle"><i></i><i></i><i></i><i></i><span id="scanReticleLabel">SEARCHING</span></div>
+                <div class="scan-target-pulse"></div>
+              </div>
+              <div class="scan-preview-bottom"><span>FULL-FIELD NEURAL SEARCH</span><span>AI VISION / ACTIVE</span></div>
+            </div>
+            <div class="scanner-beam" id="scannerBeam"></div>
+            <div class="scanner-readout"><span>MAGNETIC RESONANCE</span><b>3.0 T</b><small>SIMULATION MODE</small></div>
+            <div class="scanner-footnote">ILLUSTRATIVE SCANNER ENVIRONMENT · NOT A PHYSICAL DEVICE</div>
+          </div>
+          <div class="scan-ingest">
+            <div class="ingest-top"><span class="micro-label">SCAN INPUT / 01</span><span class="file-state" id="fileState">AWAITING IMAGE</span></div>
+            <label class="dropzone" id="dropzone">
+              <input type="file" id="scanFiles" accept=".jpg,.jpeg,.png,.webp,.bmp,image/*" multiple>
+              <span class="upload-glyph">⇧</span><strong>Import MRI images</strong><small>Drop files here or browse your computer</small><span class="format-tags">JPG <i>·</i> PNG <i>·</i> WEBP <i>·</i> BMP</span>
+            </label>
+            <div class="selected-files" id="selectedFiles"><span class="empty-copy">No files selected</span></div>
+            <div class="scan-options">
+              <label>SCAN SEQUENCE<select id="sequenceSelect"><option value="2d">2D image · sequence not embedded</option><option value="axial">Axial source image</option><option value="coronal" disabled>Coronal · requires 3D volume</option><option value="sagittal" disabled>Sagittal · requires 3D volume</option></select></label>
+              <label>ANALYSIS MODE<select id="analysisMode"><option value="standard">AI classification + explanation</option><option value="batch">Batch classification</option></select></label>
+            </div>
+            <div class="volume-note"><span>i</span><p>This build accepts 2D image files. True axial/coronal/sagittal reconstruction requires a volumetric DICOM or NIfTI series and voxel spacing.</p></div>
+            <button class="launch-button wide" id="startScan" disabled><span class="launch-icon">⟡</span><span>INITIALIZE AI ANALYSIS</span><b>↗</b></button>
+            <div class="scan-progress hidden" id="scanProgress"><div class="progress-meta"><span id="progressLabel">PREPARING SCAN</span><b id="progressPercent">0%</b></div><div class="progress-track"><i id="progressBar"></i></div><div class="progress-steps"><span>INGEST</span><span>INFERENCE</span><span>EXPLAIN</span><span>ARCHIVE</span></div></div>
+            <p class="inline-error hidden" id="scanError"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tumour Exploration Room -->
+      <section class="room room-overlay" id="room-explore" data-room-panel="explore" aria-label="Tumour Exploration Room" hidden>
+        <div class="room-heading compact"><div><div class="scene-kicker"><span>03 / 05</span><b>TUMOUR EXPLORATION ROOM</b></div><h2>Inspect the <em>scan.</em></h2></div><button class="close-room" data-room="neural" aria-label="Return to Neural Laboratory">×</button></div>
+        <div class="explore-layout">
+          <div class="viewer-column">
+            <div class="viewer-toolbar"><div class="viewer-mode"><span class="viewer-dot"></span><span id="viewerFilename">NO SCAN LOADED</span></div><div class="viewer-actions"><button id="viewOriginal" class="active">ORIGINAL</button><button id="viewAnnotated">ANNOTATED</button><button id="viewHeatmap" disabled>GRAD-CAM</button><button id="downloadView">↓ EXPORT</button></div></div>
+            <div class="mri-viewer" id="mriViewer"><canvas id="mriCanvas" aria-label="MRI image inspection canvas"></canvas><div class="viewer-placeholder" id="viewerPlaceholder"><div class="placeholder-cross">✣</div><strong>AWAITING MRI DATA</strong><span>Import an image in the Scanner Chamber to begin inspection.</span></div><div class="viewer-crosshair hidden" id="viewerCrosshair"></div><div class="viewer-coordinates" id="pixelReadout">PIXEL: — · INTENSITY: —</div><div class="viewer-scale">2D IMAGE VIEW · PIXEL SCALE</div></div>
+            <div class="viewer-footer"><div><span>VIEW</span><b id="viewerDimensions">— × —</b></div><div><span>ZOOM</span><b id="zoomReadout">100%</b></div><div><span>CURSOR</span><b id="cursorReadout">—</b></div><div><span>SPACING</span><b>NOT PROVIDED</b></div></div>
+            <div class="viewer-controls">
+              <div class="control-block"><label for="brightness">BRIGHTNESS <b id="brightnessValue">0</b></label><input id="brightness" type="range" min="-100" max="100" value="0"></div>
+              <div class="control-block"><label for="contrast">CONTRAST <b id="contrastValue">100</b></label><input id="contrast" type="range" min="25" max="220" value="100"></div>
+              <div class="control-block"><label for="gamma">GAMMA <b id="gammaValue">1.00</b></label><input id="gamma" type="range" min="40" max="220" value="100"></div>
+              <div class="control-block tool-toggles"><span>IMAGE TOOLS</span><button id="invertToggle">INVERT</button><button id="grayToggle" class="active">GRAYSCALE</button><button id="measureToggle">MEASURE</button><button id="roiToggle">ROI</button><button id="exportRoi" disabled>EXPORT ROI</button><button id="compareToggle">BEFORE / AFTER</button><button id="resetView">RESET</button></div>
+              <div class="compare-slider hidden" id="compareSlider"><label for="compareRange">ENHANCEMENT SPLIT <b id="compareRangeValue">50%</b></label><input id="compareRange" type="range" min="5" max="95" value="50"></div>
+            </div>
+            <div class="viewer-hint">DRAG TO PAN · SCROLL TO ZOOM · MEASURE MODE: CLICK TWO POINTS · ROI MODE: DRAG TO SELECT</div>
+          </div>
+          <aside class="result-column">
+            <div class="result-status"><span class="micro-label">AI CLASSIFICATION</span><span id="resultBadge" class="result-badge">NO RESULT</span></div>
+            <div class="result-type"><small>PREDICTED CATEGORY</small><h3 id="predictedType">—</h3><div class="confidence-row"><span>MODEL CONFIDENCE</span><b id="confidenceValue">—</b></div><div class="confidence-track"><i id="confidenceBar"></i></div></div>
+            <div class="mini-metrics"><div><small>INFERENCE</small><b id="inferenceTime">—</b></div><div><small>DETECTIONS</small><b id="detectionCount">—</b></div><div><small>IMAGE SIZE</small><b id="imageSize">—</b></div></div>
+            <div class="prediction-block"><div class="block-heading"><span>CLASS PROBABILITIES</span><small>TOP 4 / MODEL OUTPUT</small></div><div id="probabilityList" class="probability-list"><div class="empty-copy">Prediction probabilities will appear after analysis.</div></div></div>
+            <div class="threshold-block"><label for="thresholdRange">CONFIDENCE THRESHOLD <b id="thresholdValue">25%</b></label><input id="thresholdRange" type="range" min="5" max="90" step="1" value="25"><small>Applied to subsequent inferences.</small></div>
+            <div class="detection-block"><div class="block-heading"><span>LOCALIZATION</span><small>MODEL OUTPUT</small></div><div id="detectionList" class="detection-list"><div class="empty-copy">No localization data loaded.</div></div></div>
+            <div class="explanation-block"><div class="block-heading"><span>AI RESEARCH NOTES</span><small>GENERATED SUMMARY</small></div><p id="aiSummary">Analysis notes will appear here when the model completes a scan.</p><div id="aiPrecautions" class="precaution-list"></div></div>
+            <div class="result-disclaimer">RESEARCH / EDUCATIONAL USE ONLY. This model output is not a medical diagnosis. Grad-CAM, when available, indicates model attention and is not a tumour segmentation mask.</div>
+            <div class="result-similar-block"><div class="block-heading"><span>SAME-CLASS MRI EXAMPLES</span><small>FROM YOUR DATASET</small></div><div id="resultSimilarGrid" class="result-similar-grid"><div class="empty-copy">Matching class examples will appear here after analysis.</div></div><button id="openAllSimilar" class="secondary-button result-similar-more" disabled>EXPLORE ALL REFERENCE CASES ↗</button></div>
+            <div class="result-buttons"><button id="findSimilar" class="secondary-button" disabled>⌕ FIND SIMILAR CASES</button><button id="makeGradcam" class="secondary-button" disabled>◉ GENERATE GRAD-CAM</button><button id="printReport" class="secondary-button" disabled>↗ PRINT CASE REPORT</button></div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Case Comparison Laboratory -->
+      <section class="room room-overlay" id="room-compare" data-room-panel="compare" aria-label="Case Comparison Laboratory" hidden>
+        <div class="room-heading"><div><div class="scene-kicker"><span>04 / 05</span><b>CASE COMPARISON LABORATORY</b></div><h2>Find visual <em>matches.</em></h2><p>Browse real MRI examples sampled from the same predicted class in your Train and Test datasets.</p></div><button class="close-room" data-room="neural" aria-label="Return to Neural Laboratory">×</button></div>
+        <div class="compare-toolbar"><div><span class="micro-label">REFERENCE SEARCH</span><b id="compareCategory">NO PREDICTION SELECTED</b></div><div class="compare-actions"><button class="secondary-button" id="viewSavedReferences">☆ SAVED REFERENCES (0)</button><button class="launch-button compact-button" id="runSimilar" disabled><span class="launch-icon">⌕</span><span>SEARCH REFERENCE LIBRARY</span><b>↗</b></button></div></div>
+        <div id="similarGrid" class="similar-grid"><div class="comparison-empty"><div class="empty-orbit">⌕</div><strong>NO DATASET EXAMPLES YET</strong><p>Run an MRI analysis to load examples from <code>backend/dataset/Train/</code> and <code>backend/dataset/Test/</code> using the predicted class folder.</p></div></div>
+        <div class="comparison-note"><span>REFERENCE NOTE</span><p>These are real dataset examples from the same folder label as the model prediction. They are randomly sampled examples, not a measured image-similarity score or diagnostic confirmation.</p></div>
+        <div class="comparison-workbench hidden" id="comparisonWorkbench"><div class="workbench-head"><span class="micro-label">SIDE-BY-SIDE INSPECTION</span><button id="closeWorkbench">CLOSE ×</button></div><div class="workbench-images"><figure><img id="compareCurrentImage" alt="Current MRI"><figcaption>CURRENT SCAN</figcaption></figure><figure><img id="compareReferenceImage" alt="Reference MRI"><figcaption id="compareReferenceCaption">REFERENCE CASE</figcaption></figure><figure><canvas id="compareDiffCanvas" width="512" height="512"></canvas><figcaption>PIXEL DIFFERENCE VIEW · NOT SEGMENTATION</figcaption></figure></div></div>
+      </section>
+
+      <!-- Research Observatory -->
+      <section class="room room-overlay" id="room-research" data-room-panel="research" aria-label="Research Observatory" hidden>
+        <div class="room-heading"><div><div class="scene-kicker"><span>05 / 05</span><b>RESEARCH OBSERVATORY</b></div><h2>Review your <em>research.</em></h2><p>Local case archive, model runtime details, scan statistics and export tools.</p></div><button class="close-room" data-room="neural" aria-label="Return to Neural Laboratory">×</button></div>
+        <div class="research-stats" id="researchStats"><div class="research-stat"><small>ARCHIVED SCANS</small><b>—</b><span>LOCAL DATABASE</span></div><div class="research-stat"><small>TUMOUR-FLAGGED</small><b>—</b><span>MODEL CLASSIFICATION</span></div><div class="research-stat"><small>AVERAGE CONFIDENCE</small><b>—</b><span>MODEL SCORES</span></div><div class="research-stat"><small>MODEL STATUS</small><b id="researchModelState">—</b><span id="researchDevice">DEVICE UNKNOWN</span></div></div>
+        <div class="research-toolbar"><div><span class="micro-label">CASE ARCHIVE</span><b id="historyCount">0 SAVED CASES</b></div><div><label class="search-box">⌕ <input id="historySearch" type="search" placeholder="Search filename or class"></label><button id="favoritesFilter" class="secondary-button">☆ FAVOURITES</button><a class="secondary-button link-button" href="/api/export/history.csv">↓ EXPORT CSV</a><button id="printObservatory" class="secondary-button">↗ PRINT / PDF</button></div></div>
+        <div class="history-layout"><div class="history-list" id="historyList"><div class="comparison-empty"><div class="empty-orbit">⌁</div><strong>ARCHIVE IS EMPTY</strong><p>Completed MRI analyses are automatically saved to the local T-Scanner archive.</p></div></div><aside class="case-detail" id="caseDetail"><span class="micro-label">CASE DETAILS</span><h3>Select an archived scan</h3><p>Choose a case to review its result, notes and saved MRI image.</p><img id="historyPreview" alt="Selected case preview" class="history-preview hidden"><label class="notes-label" for="caseNotes">RESEARCH NOTES</label><textarea id="caseNotes" placeholder="Add observations or research notes..." disabled></textarea><button class="secondary-button" id="toggleFavorite" disabled>☆ MARK AS FAVOURITE</button><button class="launch-button wide" id="saveCaseNotes" disabled><span class="launch-icon">✓</span><span>SAVE CASE NOTES</span><b>↗</b></button></aside></div>
+        <div class="runtime-strip"><span class="micro-label">RUNTIME / MODEL INFORMATION</span><div><span id="runtimeModel">MODEL: —</span><span id="runtimeBackend">BACKEND: —</span><span id="runtimeClasses">CLASSES: —</span></div><button id="refreshResearch">REFRESH ↻</button></div>
+      </section>
+
+      <!-- Anatomy Atlas / Learning panel -->
+      <section class="room room-overlay" id="room-atlas" data-room-panel="atlas" aria-label="Tumour Information Explorer" hidden>
+        <div class="room-heading"><div><div class="scene-kicker"><span>EDUCATION</span><b>NEURO-ONCOLOGY ATLAS</b></div><h2>Understand the <em>categories.</em></h2><p>General educational information about the four model classes. Not a diagnostic reference.</p></div><button class="close-room" data-room="neural" aria-label="Return to Neural Laboratory">×</button></div>
+        <div class="atlas-tabs" id="atlasTabs"><button class="active" data-atlas="glioma">GLIOMA</button><button data-atlas="meningioma">MENINGIOMA</button><button data-atlas="pituitary">PITUITARY</button><button data-atlas="notumor">NO TUMOUR</button><button data-atlas="quiz">LEARNING CHALLENGE</button></div>
+        <div class="atlas-content" id="atlasContent"></div>
+      </section>
+    </main>
+
+    <nav class="environment-nav" aria-label="Simulation environments">
+      <span class="nav-caption">ENVIRONMENTS</span>
+      <button class="env-button active" data-room="neural" title="Neural Laboratory"><i>⌘</i><span>NEURAL LAB</span></button>
+      <button class="env-button" data-room="scanner" title="MRI Scanner Chamber"><i>◎</i><span>SCANNER</span></button>
+      <button class="env-button" data-room="explore" title="Tumour Exploration"><i>◉</i><span>EXPLORER</span></button>
+      <button class="env-button" data-room="compare" title="Case Comparison"><i>⌕</i><span>COMPARE</span></button>
+      <button class="env-button" data-room="research" title="Research Observatory"><i>⌁</i><span>RESEARCH</span></button>
+      <button class="env-button" data-room="atlas" title="Tumour Information Atlas"><i>✧</i><span>ATLAS</span></button>
+    </nav>
+
+    <div class="help-modal hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="help-card"><button class="close-room" id="closeHelp" aria-label="Close help">×</button><span class="micro-label">SIMULATION CONTROLS</span><h2 id="helpTitle">Navigate the <em>laboratory.</em></h2><div class="shortcut-grid"><div><kbd>DRAG</kbd><span>Rotate the 3D brain or pan the MRI image</span></div><div><kbd>SCROLL</kbd><span>Zoom into the selected view</span></div><div><kbd>DOUBLE CLICK</kbd><span>Focus the selected anatomical region</span></div><div><kbd>ESC</kbd><span>Return to Neural Laboratory</span></div><div><kbd>1 — 5</kbd><span>Switch between the five environments</span></div><div><kbd>H</kbd><span>Open or close this help panel</span></div></div><p class="help-note">MRI controls become available after loading an image. Measurement results are in pixels unless calibrated image spacing is supplied.</p></div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+  <script src="/static/app.js?v=20261106-scanfix2" defer></script>
+</body>
+</html>

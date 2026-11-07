@@ -1,0 +1,41 @@
+T-SCANNER - GLB BRAIN MODEL PATCH
+
+Apply this patch by extracting it into the ROOT of your existing T-Scanner
+project and allowing these five files to be replaced:
+
+  frontend/app.js
+  frontend/index.html
+  frontend/styles.css
+  backend/main.py
+  backend/3d/brain/README.txt
+
+IMPORTANT: Keep your existing GLB and PNG files. This patch archive does NOT
+contain your brain asset because the T-Scanner ZIP uploaded for this edit did
+not include it. Do not delete your current backend/3d/brain folder.
+
+Required asset layout:
+  backend/3d/brain/source/brain.glb
+  backend/3d/brain/textures/gltf_embedded_0.png
+  backend/3d/brain/textures/gltf_embedded_1.png
+  backend/3d/brain/textures/gltf_embedded_1@channels=A.png
+  backend/3d/brain/textures/gltf_embedded_2.png
+
+Texture mapping:
+  gltf_embedded_0.png              Base colour
+  gltf_embedded_1.png              Metallic
+  gltf_embedded_1@channels=A.png   Roughness
+  gltf_embedded_2.png              Normal map
+
+Run with the project's existing Python 3.10.8 setup:
+  python main.py
+
+After startup, open:
+  http://127.0.0.1:8000/api/brain-model
+
+The response should show available=true and all four texture entries=true.
+The browser renderer is native WebGL + vanilla JavaScript. It does not use
+Three.js, React, Node.js, npm, or any additional JavaScript library.
+
+The native loader supports standard glTF 2.0 GLB triangle geometry, node
+transforms and common base-colour, metallic/roughness and normal textures.
+Draco/meshopt-compressed geometry and KTX2/Basis textures are not supported.
